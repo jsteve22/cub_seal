@@ -5,10 +5,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
     git sudo make gcc g++ valgrind cmake python3 
 
 RUN mkdir /test
-WORKDIR /test
-COPY SEAL /test/SEAL
 COPY seal_demo /test/seal_demo
-# RUN git clone https://github.com/microsoft/SEAL.git
+WORKDIR /test
+# COPY SEAL /test/SEAL
+RUN git clone https://github.com/microsoft/SEAL.git
 WORKDIR /test/SEAL
 RUN cmake -S . -B build
 RUN cmake --build build
