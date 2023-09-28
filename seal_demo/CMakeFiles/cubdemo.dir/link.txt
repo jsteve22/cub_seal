@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/cubdemo.dir/seal_cub.cpp.o -o cubdemo  /usr/local/lib/libseal-4.1.a 

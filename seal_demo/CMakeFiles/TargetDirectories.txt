@@ -1,0 +1,4 @@
+/test/seal_demo/CMakeFiles/sealdemo.dir
+/test/seal_demo/CMakeFiles/cubdemo.dir
+/test/seal_demo/CMakeFiles/edit_cache.dir
+/test/seal_demo/CMakeFiles/rebuild_cache.dir
