@@ -51,6 +51,8 @@ u64 POLY_DEGREE = 1<<13;
 int main() {
   srand((unsigned int)time(NULL));
 
+  double start, end, running = 0;
+
   // u64 poly_degree = 1<<11;
   // u64 size = poly_degree;
   EncryptionParameters parms(scheme_type::bfv);
@@ -78,7 +80,10 @@ int main() {
   i64 channels, width, height;
   vector<vector<u64>> image = load_image("./test_image/cifar_image.txt", &channels, &width, &height);
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d.kernel.txt", image, 1, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
 
   channels = image.size();
   width = (i64)sqrt((double)image[0].size());
@@ -94,7 +99,10 @@ int main() {
   fprintf(stdout, "\n");
   cout << "\n\n\n";
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_1.kernel.txt", image, 1, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
 
   mean_pooling(image);
   channels = image.size();
@@ -109,17 +117,38 @@ int main() {
   }
   fprintf(stdout, "\n");
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_2.kernel.txt", image, 1, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
   fprintf(stdout, "Done conv2d_2\n");
+
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_3.kernel.txt", image, 1, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
   fprintf(stdout, "Done conv2d_3\n");
+
   mean_pooling(image);
+
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_4.kernel.txt", image, 1, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
   fprintf(stdout, "Done conv2d_4\n");
+
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_5.kernel.txt", image, 0, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
   fprintf(stdout, "Done conv2d_5\n");
+
+  start = (double)clock()/CLOCKS_PER_SEC;
   conv_layer("./miniONN_cifar_model/conv2d_6.kernel.txt", image, 0, encryptor, evaluator, decryptor);
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
   fprintf(stdout, "Done conv2d_6\n");
+
   channels = image.size();
   width = (i64)sqrt((double)image[0].size());
   cout << "channels after layer: " << channels << "\n";
@@ -131,6 +160,8 @@ int main() {
       fprintf(stdout, "\n");
   }
   fprintf(stdout, "\n");
+
+  cout << "Total Running Time: " << running << "\n";
 
   return 0;
 }
@@ -268,7 +299,8 @@ void prepare_filter(vector<vector<vector<u64>>> &filter, u64 image_width) {
 }
 
 void batch_filter(vector<vector<vector<u64>>> &filter, u64 image_size, u64 &filters_per_ciphertext) {
-  u64 images_per_ciphertext = min(POLY_DEGREE / image_size - (u64)(POLY_DEGREE%image_size != 0), filter.size());
+  u64 images_per_ciphertext = min(POLY_DEGREE / image_size, filter.size());
+  // u64 images_per_ciphertext = min(POLY_DEGREE / image_size - (u64)(POLY_DEGREE%image_size != 0), filter.size());
   // images_per_ciphertext = 1;
   // while (filter.size() % images_per_ciphertext != 0)
     // images_per_ciphertext--;
