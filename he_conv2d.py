@@ -9,7 +9,7 @@ def main():
 
   # layer 0
   gazelle_layer0 = gazelle(image, filters, ciphertext, padding=1)
-  polymult_layer0 = polymult(image, filters, ciphertext, padding=1)
+  polymult_layer0 = polymult(image, filters, ciphertext, padding=1, debug=True)
   print(f'Layer 0')
   print(f'Gazelle mults: {gazelle_layer0}')
   print(f'Polymult mults: {polymult_layer0}')
@@ -125,7 +125,7 @@ def polymult(image, filters, ciphertext, padding=0, no_packing=False, debug=Fals
   image_width, image_height, image_channels = image
   filter_width, filter_height, filter_in, filter_out = filters
 
-  image_width, image_height = image_width + padding, image_height + padding
+  image_width, image_height = image_width + 2*padding, image_height + 2*padding
 
   if no_packing:
     # no filter packing
@@ -134,15 +134,19 @@ def polymult(image, filters, ciphertext, padding=0, no_packing=False, debug=Fals
   expanded_filter_size = ((filter_width-1)*image_width) + filter_height
   image_size = (image_width * image_height)
 
-  filters_per_ct = (ciphertext - expanded_filter_size) // (image_size)
-  while (filter_out % filters_per_ct != 0):
-    filters_per_ct -= 1
+  print(f'image_size = {image_size}')
+  filters_per_ct = ciphertext // (image_size)
+  # while (filter_out % filters_per_ct != 0):
+    # filters_per_ct -= 1
+
+  batched_filters = (filter_out // filters_per_ct)
+  batched_filters += 1 if (filter_out % filters_per_ct > 0) else 0
 
   if debug:
     print(f'filters_per_ct = {filters_per_ct}')
 
-  return (filter_in * filter_out) / filters_per_ct
 
+  return filter_in * batched_filters
 
 if __name__ == '__main__':
   main()
