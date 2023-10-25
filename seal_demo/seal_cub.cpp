@@ -270,16 +270,18 @@ void prepare_filter(vector<vector<vector<u64>>> &filter, u64 image_width) {
 void batch_filter(vector<vector<vector<u64>>> &filter, u64 image_size, u64 &filters_per_ciphertext) {
   u64 images_per_ciphertext = min(POLY_DEGREE / image_size - (u64)(POLY_DEGREE%image_size != 0), filter.size());
   // images_per_ciphertext = 1;
-  while (filter.size() % images_per_ciphertext != 0)
-    images_per_ciphertext--;
+  // while (filter.size() % images_per_ciphertext != 0)
+    // images_per_ciphertext--;
   cout << "images_per_ciphertext: " << images_per_ciphertext << "\n";
   filters_per_ciphertext = images_per_ciphertext;
 
-  vector<vector<vector<u64>>> batched(filter.size()/images_per_ciphertext, vector<vector<u64>>(filter[0].size(), vector<u64>(POLY_DEGREE, 0)));
+  u64 uneven_filters = (filter.size()%images_per_ciphertext > 0);
+
+  vector<vector<vector<u64>>> batched(filter.size()/images_per_ciphertext + uneven_filters, vector<vector<u64>>(filter[0].size(), vector<u64>(POLY_DEGREE, 0)));
 
   for (u64 ff = 0; ff < filter.size(); ff += images_per_ciphertext) {
     for (u64 chan = 0; chan < filter[0].size(); chan++) {
-      for (u64 fi = 0; fi < images_per_ciphertext; fi++) {
+      for (u64 fi = 0; fi < images_per_ciphertext && (fi+ff < filter.size()); fi++) {
         for (u64 i = 0; i < filter[0][0].size(); i++) {
           batched[ff/images_per_ciphertext][chan][(fi*image_size)+i] = filter[ff+fi][chan][i];
         }
@@ -367,6 +369,7 @@ void conv_layer(const char* filename, vector<vector<u64>> &input_layer, int padd
   // cout << "filter_width: " << filter_width << "\n";
   // cout << "ff: " << filter.size() << "\n";
   // cout << "fc: " << filter[0].size() << "\n";
+  u64 output_filters = filter.size();
 
   // client side pre-processing
   vector<Ciphertext> ct_images;
@@ -439,6 +442,7 @@ void conv_layer(const char* filename, vector<vector<u64>> &input_layer, int padd
     }
     // outputs.push_back( center_lift(x_decrypted, x_decrypted.coeff_count(), PLAINTEXT_MOD) );
   }
+  outputs.resize(output_filters);
 
   size = (width - filter_width+1) * (width-filter_width+1);
   // reformat, relu, scale-down the images

@@ -49,6 +49,8 @@ i64* reverse_vector(i64* vector, i64 size);
 int main() {
   srand((unsigned int)time(NULL));
 
+  double start, end, running = 0;
+
   u64 poly_degree = 1<<11;
   u64 size = poly_degree;
   i64 mod = (i64)274877908993;
@@ -77,8 +79,11 @@ int main() {
   i64 channels, width, height;
   i64** image = load_image("./test_image/cifar_image.txt", &channels, &width, &height);
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d.kernel.txt", image, &channels, &width, &height, 1, data);
-  fprintf(stdout, "Done conv2d\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
   for (i = 0; i < width*height; i++) {
@@ -88,8 +93,11 @@ int main() {
   }
   fprintf(stdout, "\n");
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_1.kernel.txt", image, &channels, &width, &height, 1, data);
-  fprintf(stdout, "Done conv2d_1\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_1: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
   mean_pool_images(image, &channels, &width, &height);
@@ -103,8 +111,11 @@ int main() {
   fprintf(stdout, "\n");
 
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_2.kernel.txt", image, &channels, &width, &height, 1, data);
-  fprintf(stdout, "Done conv2d_2\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_2: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
   for (i = 0; i < width*height; i++) {
@@ -114,23 +125,35 @@ int main() {
   }
   fprintf(stdout, "\n");
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_3.kernel.txt", image, &channels, &width, &height, 1, data);
-  fprintf(stdout, "Done conv2d_3\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_3: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
   mean_pool_images(image, &channels, &width, &height);
   fprintf(stdout, "Done mean_pooling_1\n");
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_4.kernel.txt", image, &channels, &width, &height, 1, data);
-  fprintf(stdout, "Done conv2d_4\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_4: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_5.kernel.txt", image, &channels, &width, &height, 0, data);
-  fprintf(stdout, "Done conv2d_5\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_5: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
+  start = (double)clock()/CLOCKS_PER_SEC;
   image = conv_layer("./miniONN_cifar_model/conv2d_6.kernel.txt", image, &channels, &width, &height, 0, data);
-  fprintf(stdout, "Done conv2d_6\n");
+  end = (double)clock()/CLOCKS_PER_SEC;
+  running += (end - start);
+  fprintf(stdout, "Done conv2d_6: (%lf)\n", end - start);
   fprintf(stdout, "(%ld, %ld, %ld)\n", channels, width, height);
 
   for (i = 0; i < width*height; i++) {
@@ -149,7 +172,8 @@ int main() {
   // free_image(image, channels, width, height);
   free(private_key);
   publickey_free(public_key);
-
+  
+  fprintf(stdout, "Total running time: %lf\n", running);
   return 0;
 }
 
